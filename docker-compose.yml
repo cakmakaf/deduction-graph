@@ -1,0 +1,21 @@
+services:
+  api:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DG_LOG_LEVEL: INFO
+    volumes:
+      - ./mlruns:/app/mlruns
+
+  # Runs the test suite and the eval harness, then exits. Non-zero exit means a
+  # gate failed.
+  gate:
+    build:
+      context: .
+      target: test
+    profiles: ["ci"]

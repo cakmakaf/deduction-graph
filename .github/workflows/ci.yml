@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint and types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check src evals tests scripts
+      - run: ruff format --check src evals tests scripts
+      - run: mypy
+        continue-on-error: true  # TODO: remove once the scaffolded modules are implemented
+
+  test:
+    name: Tests (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest tests --cov --cov-report=term-missing
+
+  # The release gate. This job is the reason the harness exists: a change that
+  # regresses scope precision, numeric correctness, groundedness, or escalation
+  # preference cannot merge, regardless of whether the unit tests pass.
+  eval-gate:
+    name: Evaluation release gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Run the five-layer harness
+        run: python -m evals.runner
+
+      - name: Ablation, scoped versus naive retrieval
+        run: python -m evals.ablation | tee ablation.txt
+
+      - name: Scorecard artifact
+        if: always()
+        run: python -m evals.runner --json > scorecard.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-scorecard
+          path: |
+            scorecard.json
+            ablation.txt
+
+      - name: Rule verification status
+        run: |
+          python -m deduction_graph.cli rules 2024 --unverified || true
+          python -m deduction_graph.cli rules 2025 --unverified || true
+
+  docker:
+    name: Docker build and in-image gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build test stage, which runs tests and the eval gate
+        run: docker build --target test -t deduction-graph:test .
+      - name: Build runtime stage
+        run: docker build --target runtime -t deduction-graph:runtime .

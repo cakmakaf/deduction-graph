@@ -1,0 +1,100 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deduction-graph"
+version = "0.1.0"
+description = "An auditable agentic assistant for U.S. federal income tax deduction questions"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Ahmet Faruk Cakmak" }]
+keywords = ["llm", "agents", "langgraph", "rag", "retrieval", "evaluation", "tax"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+# Core stays deliberately small. The rules engine, the calculation tools, the
+# scope filter, and the full eval harness all run on just these two, which is
+# what lets CI verify every claim in the README with no API key and no model
+# download.
+dependencies = [
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+graph = ["langgraph>=0.2", "langchain-core>=0.3"]
+retrieval = ["chromadb>=0.5", "sentence-transformers>=3.0"]
+api = ["fastapi>=0.115", "uvicorn[standard]>=0.30"]
+llm = ["anthropic>=0.40"]
+tracking = ["mlflow>=2.16"]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "pre-commit>=3.8",
+]
+all = ["deduction-graph[graph,retrieval,api,llm,tracking,dev]"]
+
+[project.scripts]
+deduction-graph = "deduction_graph.cli:main"
+
+[project.urls]
+Repository = "https://github.com/afcakmak/deduction-graph"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/deduction_graph"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-q --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 92
+target-version = "py311"
+src = ["src", "evals", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF", "ARG", "PTH"]
+ignore = [
+    "E501",   # line length handled by the formatter
+    "B008",   # FastAPI Depends in defaults
+    "RUF012", # mutable class attrs; pydantic handles this
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG001", "ARG002"]
+"evals/*" = ["ARG001"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+mypy_path = "src"
+packages = ["deduction_graph"]
+
+[[tool.mypy.overrides]]
+module = ["chromadb.*", "sentence_transformers.*", "mlflow.*", "langgraph.*"]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["src/deduction_graph"]
+omit = ["*/api/main.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]

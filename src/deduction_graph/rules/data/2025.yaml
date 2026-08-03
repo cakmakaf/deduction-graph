@@ -1,0 +1,197 @@
+# Federal individual income tax deduction parameters, tax year 2025.
+#
+# ############################################################################
+# READ THIS BEFORE USING ANY VALUE IN THIS FILE.
+#
+# Tax year 2025 is the single most important file in this repository to verify,
+# and the reason is the whole thesis of the project. Legislation enacted in
+# July 2025 (P.L. 119-21, the reconciliation act commonly called OBBBA) changed
+# several of these provisions for tax year 2025, including the standard
+# deduction and the SALT cap. Values below reflect that legislation as drafted,
+# but they are NOT verified and several are likely to be wrong in detail
+# (phase-down mechanics, exact indexed amounts, effective dates).
+#
+# This is exactly the failure mode the system is built to prevent: a
+# confident-sounding answer computed from the wrong year's parameters. Verify
+# every value against the primary source before flipping `verified` to true.
+# ############################################################################
+
+tax_year: 2025
+
+standard_deduction:
+  base:
+    single:
+      amount: 15750
+      source: "P.L. 119-21 sec. 70102; IRS Rev. Proc. 2025-32; Pub 501 (2025)"
+      verified: false
+      note: "Pre-OBBBA inflation-adjusted figure was 15000. Confirm which applies."
+    married_filing_jointly:
+      amount: 31500
+      source: "P.L. 119-21 sec. 70102; Pub 501 (2025)"
+      verified: false
+      note: "Pre-OBBBA inflation-adjusted figure was 30000. Confirm which applies."
+    married_filing_separately:
+      amount: 15750
+      source: "P.L. 119-21 sec. 70102; Pub 501 (2025)"
+      verified: false
+    head_of_household:
+      amount: 23625
+      source: "P.L. 119-21 sec. 70102; Pub 501 (2025)"
+      verified: false
+      note: "Pre-OBBBA inflation-adjusted figure was 22500. Confirm which applies."
+    qualifying_surviving_spouse:
+      amount: 31500
+      source: "P.L. 119-21 sec. 70102; Pub 501 (2025)"
+      verified: false
+  additional:
+    unmarried:
+      amount: 2000
+      source: "Pub 501 (2025)"
+      verified: false
+    married:
+      amount: 1600
+      source: "Pub 501 (2025)"
+      verified: false
+
+# New for 2025. Temporary additional deduction for taxpayers age 65+.
+# Mechanics, amount, and phase-out thresholds all require verification.
+senior_deduction:
+  enabled: true
+  amount_per_qualifying_individual: 6000
+  phase_out:
+    single:
+      start: 75000
+      end: null
+      rate: 0.06
+    married_filing_jointly:
+      start: 150000
+      end: null
+      rate: 0.06
+  source: "P.L. 119-21 sec. 70103"
+  verified: false
+  note: "Available whether or not the taxpayer itemizes. Confirm interaction with standard deduction and exact phase-out formula."
+
+salt:
+  cap:
+    default:
+      amount: 40000
+      source: "P.L. 119-21 sec. 70120; IRC 164(b)(6) as amended"
+      verified: false
+      note: "Raised from 10000 for 2025. Confirm exact amount and indexing."
+    married_filing_separately:
+      amount: 20000
+      source: "P.L. 119-21 sec. 70120"
+      verified: false
+  phase_down:
+    enabled: true
+    magi_threshold: 500000
+    married_filing_separately_threshold: 250000
+    reduction_rate: 0.30
+    floor: 10000
+    married_filing_separately_floor: 5000
+    source: "P.L. 119-21 sec. 70120"
+    verified: false
+    note: "Cap reduces by 30 percent of MAGI above the threshold, not below the floor. Verify the formula precisely; this is easy to get wrong."
+
+mortgage_interest:
+  acquisition_debt_limit:
+    post_tcja:
+      amount: 750000
+      married_filing_separately_amount: 375000
+      applies_to_debt_incurred_after: "2017-12-15"
+      source: "IRC 163(h)(3)(F); Pub 936 (2025)"
+      verified: false
+      note: "Made permanent by P.L. 119-21. Confirm."
+    grandfathered:
+      amount: 1000000
+      married_filing_separately_amount: 500000
+      applies_to_debt_incurred_on_or_before: "2017-12-15"
+      source: "IRC 163(h)(3)(F)(i); Pub 936 (2025)"
+      verified: false
+
+charitable:
+  agi_limits:
+    cash_public_charity:
+      rate: 0.60
+      source: "IRC 170(b)(1)(G); Pub 526 (2025)"
+      verified: false
+    noncash_public_charity:
+      rate: 0.50
+      source: "Pub 526 (2025)"
+      verified: false
+    appreciated_capital_gain_public_charity:
+      rate: 0.30
+      source: "IRC 170(b)(1)(C); Pub 526 (2025)"
+      verified: false
+    cash_private_foundation:
+      rate: 0.30
+      source: "IRC 170(b)(1)(B); Pub 526 (2025)"
+      verified: false
+  carryforward_years:
+    value: 5
+    source: "IRC 170(d)(1); Pub 526 (2025)"
+    verified: false
+
+medical:
+  agi_threshold:
+    rate: 0.075
+    source: "IRC 213(a); Sch. A (Form 1040) Instructions (2025)"
+    verified: false
+
+student_loan_interest:
+  max_deduction:
+    amount: 2500
+    source: "IRC 221(b)(1); Pub 970 (2025)"
+    verified: false
+  phase_out:
+    single:
+      start: 85000
+      end: 100000
+      source: "Pub 970 (2025)"
+      verified: false
+    head_of_household:
+      start: 85000
+      end: 100000
+      source: "Pub 970 (2025)"
+      verified: false
+    married_filing_jointly:
+      start: 170000
+      end: 200000
+      source: "Pub 970 (2025)"
+      verified: false
+    qualifying_surviving_spouse:
+      start: 170000
+      end: 200000
+      source: "Pub 970 (2025)"
+      verified: false
+    married_filing_separately:
+      ineligible: true
+      source: "IRC 221(e)(2); Pub 970 (2025)"
+      verified: false
+
+hsa:
+  contribution_limit:
+    self_only:
+      amount: 4300
+      source: "IRS Rev. Proc. 2024-25; Pub 969 (2025)"
+      verified: false
+    family:
+      amount: 8550
+      source: "IRS Rev. Proc. 2024-25; Pub 969 (2025)"
+      verified: false
+  catch_up:
+    age: 55
+    amount: 1000
+    source: "IRC 223(b)(3); Pub 969 (2025)"
+    verified: false
+
+ira:
+  contribution_limit:
+    amount: 7000
+    source: "IRS Notice 2024-80"
+    verified: false
+  catch_up:
+    age: 50
+    amount: 1000
+    source: "IRC 219(b)(5)(B)"
+    verified: false

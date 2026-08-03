@@ -1,0 +1,154 @@
+# Federal individual income tax deduction parameters, tax year 2024.
+#
+# EVERY parameter must carry `source` and `verified`.
+# `verified: false` means the value was drafted but NOT yet checked against the
+# cited primary source. tests/test_verified_flags.py fails while any remain false.
+# Verify against the cited IRS publication, then flip the flag.
+
+tax_year: 2024
+
+standard_deduction:
+  base:
+    single:
+      amount: 14600
+      source: "IRS Rev. Proc. 2023-34; Pub 501 (2024)"
+      verified: false
+    married_filing_jointly:
+      amount: 29200
+      source: "IRS Rev. Proc. 2023-34; Pub 501 (2024)"
+      verified: false
+    married_filing_separately:
+      amount: 14600
+      source: "IRS Rev. Proc. 2023-34; Pub 501 (2024)"
+      verified: false
+    head_of_household:
+      amount: 21900
+      source: "IRS Rev. Proc. 2023-34; Pub 501 (2024)"
+      verified: false
+    qualifying_surviving_spouse:
+      amount: 29200
+      source: "IRS Rev. Proc. 2023-34; Pub 501 (2024)"
+      verified: false
+  additional:
+    # Per qualifying condition (age 65 or older, blind). Both may apply.
+    unmarried:
+      amount: 1950
+      source: "Pub 501 (2024), Standard Deduction for Age 65 or Older or Blind"
+      verified: false
+    married:
+      amount: 1550
+      source: "Pub 501 (2024), Standard Deduction for Age 65 or Older or Blind"
+      verified: false
+
+salt:
+  cap:
+    default:
+      amount: 10000
+      source: "IRC 164(b)(6); Sch. A (Form 1040) Instructions (2024)"
+      verified: false
+    married_filing_separately:
+      amount: 5000
+      source: "IRC 164(b)(6); Sch. A (Form 1040) Instructions (2024)"
+      verified: false
+
+mortgage_interest:
+  acquisition_debt_limit:
+    post_tcja:
+      amount: 750000
+      married_filing_separately_amount: 375000
+      applies_to_debt_incurred_after: "2017-12-15"
+      source: "IRC 163(h)(3)(F); Pub 936 (2024)"
+      verified: false
+    grandfathered:
+      amount: 1000000
+      married_filing_separately_amount: 500000
+      applies_to_debt_incurred_on_or_before: "2017-12-15"
+      source: "IRC 163(h)(3)(F)(i); Pub 936 (2024)"
+      verified: false
+
+charitable:
+  agi_limits:
+    cash_public_charity:
+      rate: 0.60
+      source: "IRC 170(b)(1)(G); Pub 526 (2024)"
+      verified: false
+    noncash_public_charity:
+      rate: 0.50
+      source: "Pub 526 (2024), Limits on Deductions"
+      verified: false
+    appreciated_capital_gain_public_charity:
+      rate: 0.30
+      source: "IRC 170(b)(1)(C); Pub 526 (2024)"
+      verified: false
+    cash_private_foundation:
+      rate: 0.30
+      source: "IRC 170(b)(1)(B); Pub 526 (2024)"
+      verified: false
+  carryforward_years:
+    value: 5
+    source: "IRC 170(d)(1); Pub 526 (2024)"
+    verified: false
+
+medical:
+  agi_threshold:
+    rate: 0.075
+    source: "IRC 213(a); Sch. A (Form 1040) Instructions (2024)"
+    verified: false
+
+student_loan_interest:
+  max_deduction:
+    amount: 2500
+    source: "IRC 221(b)(1); Pub 970 (2024)"
+    verified: false
+  phase_out:
+    single:
+      start: 80000
+      end: 95000
+      source: "Pub 970 (2024), Student Loan Interest Deduction"
+      verified: false
+    head_of_household:
+      start: 80000
+      end: 95000
+      source: "Pub 970 (2024)"
+      verified: false
+    married_filing_jointly:
+      start: 165000
+      end: 195000
+      source: "Pub 970 (2024)"
+      verified: false
+    qualifying_surviving_spouse:
+      start: 165000
+      end: 195000
+      source: "Pub 970 (2024)"
+      verified: false
+    married_filing_separately:
+      ineligible: true
+      source: "IRC 221(e)(2); Pub 970 (2024)"
+      verified: false
+
+hsa:
+  contribution_limit:
+    self_only:
+      amount: 4150
+      source: "IRS Rev. Proc. 2023-23; Pub 969 (2024)"
+      verified: false
+    family:
+      amount: 8300
+      source: "IRS Rev. Proc. 2023-23; Pub 969 (2024)"
+      verified: false
+  catch_up:
+    age: 55
+    amount: 1000
+    source: "IRC 223(b)(3); Pub 969 (2024)"
+    verified: false
+
+ira:
+  contribution_limit:
+    amount: 7000
+    source: "IRS Notice 2023-75"
+    verified: false
+  catch_up:
+    age: 50
+    amount: 1000
+    source: "IRC 219(b)(5)(B)"
+    verified: false
